@@ -1,0 +1,7 @@
+/.history
+/coverage
+/seeders
+/node_modules
+**.lock
+.history
+*.log
