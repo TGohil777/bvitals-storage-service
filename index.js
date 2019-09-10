@@ -43,3 +43,4 @@ models.sequelize.sync().then(() => {
       console.log(chalk.green(`Express server listening on port ${process.env.PORT}`));
     });
   })
+ 
