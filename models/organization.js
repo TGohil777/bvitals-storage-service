@@ -1,6 +1,6 @@
 'use strict'
 
-module.exports = (sequelize , DataTypes) => {
+module.exports = (sequelize, DataTypes) => {
     const organization = sequelize.define('organization',{
         organizationid : {
            type: DataTypes.BIGINT,
@@ -40,6 +40,7 @@ module.exports = (sequelize , DataTypes) => {
 
     organization.associate = function(models) {
         organization.hasMany(models.location, {foreignKey: 'organizationid' ,as: 'locations'})
+        organization.hasMany(models.orguser, {foreignKey: 'organizationid' ,as: 'users'})
       };
     return organization;
 }
