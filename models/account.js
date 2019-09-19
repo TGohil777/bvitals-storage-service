@@ -5,21 +5,18 @@ module.exports = (sequelize , DataTypes) => {
         accountid:{
             type : DataTypes.BIGINT,
             primaryKey: true,
-            autoIncrement: true,
-            allowNull: false
+            autoIncrement: true
         },
         active:{
             type: DataTypes.BOOLEAN,
-            allowNull : false,
             defaultValue : false
         },
         authid:{
-        type: DataTypes.BIGINT,
-        allowNull: false
+            type: DataTypes.BIGINT,
+            allowNull: false
         },
         deleted:{
             type: DataTypes.BOOLEAN,
-            allowNull : false,
             defaultValue : false
         }
     },{
