@@ -22,12 +22,10 @@ function getCurrentUser(token){
       return response;
     }, function (error) {
       if (error.response.status === 401) {
-        console.log("Error", JSON.stringify(error.response.data, null, 3));
         return Promise.reject(error.response.data);
       }
     
       if (error.response.status === 400) {
-        console.log("Error", JSON.stringify(error.response.data, null, 3));
         return Promise.reject(error.response.data);
       }
     });

@@ -10,7 +10,6 @@ const { userCreation, getCurrentUser} = require('./services/organization');
   authRouter.post("/create-organization", async (req, res) => {
     try {
         const token = req.headers['authorization'];
-        console.log("Token", token);
         if (!token) throw new new Error("You are not authorized");
         const userResponse = await getCurrentUser(token);
         if (!userResponse.data || !userResponse.data.isValid) throw new Error("User not authorized");
@@ -18,7 +17,6 @@ const { userCreation, getCurrentUser} = require('./services/organization');
         //     throw new Error("User not authorized");
         // }
 
-        // console.log(JSON.stringify(response.data));
         
         const { orgname, webaddress, subdomain, themecolor, logourl,
              orglocation, address1, address2, city, state, zipcode,
@@ -65,8 +63,6 @@ const { userCreation, getCurrentUser} = require('./services/organization');
             password
         }
         const responseData = await userCreation(token, data);
-        console.log("Response data", JSON.stringify(responseData, null, 3));
-
         if (!responseData) throw new Error("Cannot create user");
 
         const  { user } = responseData.data;
@@ -95,8 +91,6 @@ const { userCreation, getCurrentUser} = require('./services/organization');
             message: "Successfully added practice"
         })
     } catch (err) {
-        console.log("Error", JSON.stringify(err, null, 3));
-        // if (!err.error || !err.message) errors.error  = err;
         if (err.message) {
             res.status(400).json({
                 message: err.message

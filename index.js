@@ -34,13 +34,12 @@ app.use(morgan(':id :method :url :response-time', {
 
 function assignId (req, res, next) {
   req.id = uuid.v4()
-  console.log(req.id)
   next()
 }
 
 app.use('/api/v1/dataStorage', require('./routes/organization'))
 models.sequelize.sync().then(() => {
-    app.listen(process.env.PORT, () => {
+    app.listen(9000, () => {
       console.log(chalk.green(`Express server listening on port ${process.env.PORT}`));
     });
   })
