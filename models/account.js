@@ -25,7 +25,8 @@ module.exports = (sequelize , DataTypes) => {
     })
 
     account.associate = function(models) {
-    account.hasMany(models.account, {foreignKey: 'accountid' ,as: 'orgusers'})
+    account.hasMany(models.orguser, {foreignKey: 'accountid' ,as: 'orgusers'})
+
     }
     return account;
 }
