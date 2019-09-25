@@ -39,7 +39,7 @@ function assignId (req, res, next) {
 
 app.use('/api/v1/dataStorage', require('./routes/organization'))
 models.sequelize.sync().then(() => {
-    app.listen(9000, () => {
+    app.listen(process.env.PORT, () => {
       console.log(chalk.green(`Express server listening on port ${process.env.PORT}`));
     });
   })
