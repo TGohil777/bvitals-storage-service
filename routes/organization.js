@@ -153,4 +153,5 @@ authRouter.route('/organization').get(async (req,res)=>{
 
 })
 
+
 module.exports = authRouter
