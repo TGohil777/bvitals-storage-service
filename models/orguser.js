@@ -45,6 +45,8 @@ module.exports = (sequelize , DataTypes) => {
     orguser.associate = function(models) {
         orguser.belongsTo(models.organization, {foreignKey: 'organizationid'})
         orguser.belongsTo(models.account, {foreignKey:'accountid'})
+
+        
       };
 
     return orguser;
