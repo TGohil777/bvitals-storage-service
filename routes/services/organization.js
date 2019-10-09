@@ -19,7 +19,7 @@ function userCreation(token, data){
       });
     return authorizedInstance.post(createUser, data)
 }
-//-----------------------------------------------------------------------------------------------------------------------
+
 function getCurrentUser(token){
     const authorizedInstance = authinstance(token);
     authorizedInstance.interceptors.response.use((response) => {
@@ -36,7 +36,7 @@ function getCurrentUser(token){
     return authorizedInstance.get(currentUser)
 }
 
-//-----------------------------------------------------------------------------------------------------------------------
+
 function getUsers(token, authid){
   instance.interceptors.response.use((response) => {
     return response;
