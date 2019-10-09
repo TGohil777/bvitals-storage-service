@@ -1,9 +1,9 @@
 const express = require('express')
 const models = require('../models')
 const authRouter = express.Router();
-const {editOrganization} = require('./components/edit-organization.js')
 const { userCreation, getCurrentUser} = require('./services/organization');
-//---------------------------------------------------------------------------------------------------------------------
+
+//End point for creating an organization
 authRouter.post("/create-organization", async (req, res) => {
     try {
         const token = req.headers['authorization'];
@@ -21,7 +21,6 @@ authRouter.post("/create-organization", async (req, res) => {
         });
         if (findOrg) throw new Error(`Organization with name ${orgname} already exists`);
 
-        
         const org = await models.organization.create({
             name: orgname ,
             webaddress,
@@ -45,20 +44,18 @@ authRouter.post("/create-organization", async (req, res) => {
         })
         if (!orgLocation) throw new Error("Cannot add a location to the current practice");
 
-        const {newUserFirstName, newUserLastName, newUserEmail, newUserPassword} = req.body
+        const {firstname, lastname, email, password} = req.body
         const data = {
-            newUserFirstName, 
-            newUserLastName, 
-            newUserEmail, 
-            newUserPassword
+            firstname, 
+            lastname, 
+            email, 
+            password
         }
         const responseData = await userCreation(token, data);
         if (!responseData) throw new Error("Cannot create user");
 
         const  { user } = responseData.data;
         
-        //checking if the record has been created in auth table for the specified email.
-        //if the email is present in auth, then we will add the record in auth table
         const accountAdded = await models.account.create({
             authid: user.authid
         });
@@ -87,38 +84,8 @@ authRouter.post("/create-organization", async (req, res) => {
         }
     }
 })
-//--------------------------------------------------------------------------------------------------------------------
-authRouter.route('/edit-organization/:orgId').put(async (req,res)=>{
-    try{
-//         const {errors,data} = await editOrganization(req)
-//         if(!errors){
-//             return res.status(200).json({
-//                 message : 'Update Finished!'
-//             })
-//         }
-//         else{
-//             return res.status(401).json(errors)
-//         }
 
-const token = req.headers['authorization'];
-if (!token) throw new new Error("You are not authorized");
-const userResponse = await getCurrentUser(token);
-if (!userResponse.data || !userResponse.data.isValid) throw new Error("User not authorized");
-
-const {newName, newWebaddress, newThemeColor, newLogourl} = req.body
-
-
-
-
-    }catch(err){
-        return res.status(400).json({
-            message: err.message
-        })
-    }
- })
-
-
-//----------------------------------------------------------------------------------------------------------------------
+//End point for viewing a single organization based on the orgID recieved from the response
 authRouter.get('/single-organization', async (req,res)=>{
     const token = req.headers['authorization'];
     const {id} = req.query;
@@ -139,7 +106,8 @@ authRouter.get('/single-organization', async (req,res)=>{
         });
     }
 })
-//--------------------------------------------------------------------------------------------------------------
+
+//End point for viewing a single organization associated locations based on the orgID recieved from the response
 authRouter.get('/associated-locations', async (req,res)=>{
     const token = req.headers['authorization'];
     const {id} = req.query;
@@ -161,7 +129,8 @@ authRouter.get('/associated-locations', async (req,res)=>{
     }
 })
 
-//------------------------------------------------------------------------------------------------------------------
+/* End point for viewing a single organization associated users based on the orgID recieved from the response
+ Sending authID to IDS table to view the users list*/
 authRouter.route('/associated-users').get(async (req, res) => {
     const {id} = req.query
     const token = req.headers['authorization'];
@@ -186,7 +155,7 @@ authRouter.route('/associated-users').get(async (req, res) => {
         })
     }
 });
-//------------------------------------------------------------------------------------------------------------------
+
 
 authRouter.put("/delete-organization", async (req, res) => {
     const {email} = req.body
@@ -207,7 +176,7 @@ authRouter.put("/delete-organization", async (req, res) => {
             })
         if(deleteUser){
             res.status(200).json({
-            message: "User successfully deleted"})
+            message: "successfully deleted"})
         }else{
             throw new Error('There was an error while deleting')
         }
@@ -217,8 +186,8 @@ authRouter.put("/delete-organization", async (req, res) => {
         });
     }
 })
-//-------------------------------------------------------------------------------------------------------------------
 
+//End point to view all the organizations present in the database
 authRouter.get("/list-organization", async (req,res) => { 
     const token = req.headers['authorization'];
     if (!token) throw new new Error("You are not authorized"); 
@@ -236,5 +205,143 @@ authRouter.get("/list-organization", async (req,res) => {
         });
     }
  })
-//---------------------------------------------------------------------------------------------------------------------
+
+ //End point to edit an organization based on th eorgID recieved
+authRouter.put("/edit-organization", async (req,res) => { 
+    try{
+        if(req.body.newOrgName && !req.body.newWebAdd && !req.body.newColor){  //to edit org name
+            const editOrgname = await models.organization.update({
+                name:req.body.newOrgName
+                },{
+                where:{
+                    organizationid : req.body.orgID, 
+                }
+            })
+            res.status(200).json(editOrgname)
+        }
+        if(req.body.newWebAdd && !req.body.newOrgName && !req.body.newColor){  //to edit web address
+            const editWebAdd = await models.organization.update({
+                webaddress: req.body.newWebAdd
+                },{
+                where:{
+                    organizationid : req.body.orgID, 
+                }
+            })
+            res.status(200).json(editWebAdd)
+        }
+        if(req.body.newColor && !req.body.newOrgName && !req.body.newWebAdd){  //to edit theme color
+            const editThemeColor = await models.organization.update({
+                themecolor:req.body.newColor
+                },{
+                where:{
+                    organizationid : req.body.orgID, 
+                }
+            })
+            res.status(200).json(editThemeColor)
+        }
+    }catch(err){
+        return res.status(400).json({
+            message: err.message
+        })
+    }
+})
+
+//End point to edit a particular location based on the orgID recieved
+authRouter.put("/edit-locations", async (req,res) => { 
+        try{
+            if(req.body.newLocName && !req.body.newAdd1 && !req.body.newAdd2 && !req.body.newCity //to edit location name
+                && !req.body.newState && !req.body.newZipCode && !req.body.newLat && !req.body.newLng){
+                const editLocName = await models.location.update({
+                    name:req.body.newLocName
+                    },{
+                    where:{
+                        organizationid : req.body.orgID, 
+                    }
+                })
+                res.status(200).json(editLocName)
+            }
+            if(req.body.newAdd1 && !req.body.newLocName && !req.body.newAdd2 && !req.body.newCity  //to edit address1
+                && !req.body.newState && !req.body.newZipCode && !req.body.newLat && !req.body.newLng){
+                const editAdd1 = await models.location.update({
+                    address1: req.body.newAdd1
+                    },{
+                    where:{
+                        organizationid : req.body.orgID, 
+                    }
+                })
+                res.status(200).json(editAdd1)
+            }
+            if(req.body.newAdd2 && !req.body.newLocName && !req.body.newAdd1 && !req.body.newCity  //to edit address2
+                && !req.body.newState && !req.body.newZipCode && !req.body.newLat && !req.body.newLng){
+                const editAdd2 = await models.location.update({
+                    address2: req.body.newAdd2
+                    },{
+                    where:{
+                        organizationid : req.body.orgID, 
+                    }
+                })
+                res.status(200).json(editAdd2)
+            }
+            if(req.body.newCity && !req.body.newLocName && !req.body.newAdd1 && !req.body.newAdd2  //to edit city
+                && !req.body.newState && !req.body.newZipCode && !req.body.newLat && !req.body.newLng){
+                const editCity = await models.location.update({
+                    city:req.body.newCity
+                    },{
+                    where:{
+                        organizationid : req.body.orgID, 
+                    }
+                })
+                res.status(200).json(editCity)
+            }
+            if(req.body.newState && !req.body.newLocName && !req.body.newAdd1 && !req.body.newAdd2  //to edit state
+                && !req.body.newCity && !req.body.newZipCode && !req.body.newLat && !req.body.newLng){
+                const editState = await models.location.update({
+                    state:req.body.newState
+                    },{
+                    where:{
+                        organizationid : req.body.orgID, 
+                    }
+                })
+                res.status(200).json(editState)
+            }
+            if(req.body.newZipCode && !req.body.newLocName && !req.body.newAdd1 && !req.body.newAdd2  //to edit zipcode
+                && !req.body.newState && !req.body.newState && !req.body.newLat && !req.body.newLng){
+                const editZipCode = await models.location.update({
+                    zipcode:req.body.newZipCode
+                    },{
+                    where:{
+                        organizationid : req.body.orgID, 
+                    }
+                })
+                res.status(200).json(editZipCode)
+            }
+            if(req.body.newLat && !req.body.newLocName && !req.body.newAdd1 && !req.body.newAdd2   //to edit latitude
+                && !req.body.newState && !req.body.newZipCode && !req.body.newCity && !req.body.newLng){
+                const editLat = await models.location.update({
+                    latitude:req.body.newLat
+                    },{
+                    where:{
+                        organizationid : req.body.orgID, 
+                    }
+                })
+                res.status(200).json(editLat)
+            }
+            if(req.body.newLng && !req.body.newLocName && !req.body.newAdd1 && !req.body.newAdd2  //to edit longtitude
+                && !req.body.newState && !req.body.newZipCode && !req.body.newCity && !req.body.newLat){
+                const editLng = await models.location.update({
+                    longitude:req.body.newLng
+                    },{
+                    where:{
+                        organizationid : req.body.orgID, 
+                    }
+                })
+                res.status(200).json(editLng)
+            }
+        }catch(err){
+            return res.status(400).json({
+                message: err.message
+            })
+        }
+    })
+
 module.exports = authRouter
