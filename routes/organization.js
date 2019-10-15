@@ -54,10 +54,7 @@ authRouter.post("/create-organization", async (req, res) => {
         const responseData = await userCreation(token, data);
         if (!responseData) throw new Error("Cannot create user");
         const  { user } = responseData.data;
-
-        const id = user.authid
-console.log("Auth iD...",id)
-        //if(id) throw new Error('Would you like to continue with same existing email id?')
+        
         const accountAdded = await models.account.create({
             authid: user.authid
         });
@@ -117,7 +114,7 @@ authRouter.get('/associated-locations', async (req,res)=>{
         const userResponse = await getCurrentUser(token);
         if (!userResponse.data || !userResponse.data.isValid) throw new Error("User not authorized");
         if(!id) throw new Error(`Location not found`);
-        const loc = await models.location.findOne({
+        const loc = await models.location.findAll({
             where: {
                 organizationid: id
             }
