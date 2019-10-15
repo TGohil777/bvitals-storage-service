@@ -58,7 +58,7 @@ module.exports = (sequelize , DataTypes) => {
     })
 
     location.associate = function(models) {
-        location.belongsTo(models.organization, {foreignKey: 'organizationid'})
+        location.belongsTo(models.organization, {foreignKey: 'organizationid'} )
       };
 
 
